@@ -1,0 +1,28 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowLeft, Bookmark, Check, Clock3, Dumbbell, Flame, ListChecks, Plus, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { getWorkout } from "@/lib/workouts";
+import { useWorkoutState } from "@/components/providers/WorkoutProvider";
+import type { Workout } from "@/types/workout";
+
+const fields = (workout: Workout) => [["Equipment", workout.equipment], ["Difficulty", workout.difficulty], ["Sets", workout.sets], ["Reps", workout.reps], ["Duration", `${workout.duration} min`], ["Calories", `${workout.caloriesBurned} kcal`], ["Rating", workout.rating]];
+
+export default function WorkoutDetails({ id }: { id: string }) {
+  const [workout, setWorkout] = useState<Workout | null>(null);
+  const [failed, setFailed] = useState(false);
+  const { plan, saved, addToPlan, saveWorkout } = useWorkoutState();
+  useEffect(() => { getWorkout(id).then(setWorkout).catch(() => setFailed(true)); }, [id]);
+
+  if (failed) return <section className="grid min-h-[60vh] place-items-center px-4 text-center"><div><p className="text-sm font-black tracking-[.2em] text-[#ccff00]">404</p><h1 className="display-font mt-3 text-5xl uppercase">Workout not found</h1><Link href="/" className="mt-6 inline-flex bg-[#ccff00] px-5 py-3 font-black text-[#111311]">Return to library</Link></div></section>;
+  if (!workout) return <section className="grid min-h-[60vh] place-items-center"><div className="text-center"><span className="loading loading-spinner loading-lg text-[#ccff00]" /><p className="mt-4 font-bold text-white/55">Loading workout…</p></div></section>;
+  const isPlanned = plan.some((item) => item.id === workout.id);
+  const isSaved = saved.some((item) => item.id === workout.id);
+  const planFull = plan.length >= 5 && !isPlanned;
+  const handlePlan = () => { const result = addToPlan(workout); toast[result === "added" ? "success" : "info"](result === "added" ? "Added to today’s plan" : result === "limit" ? "Today’s plan is capped at five lifts" : "This workout is already in today’s plan"); };
+  const handleSave = () => { const result = saveWorkout(workout); toast[result === "added" ? "success" : "info"](result === "added" ? "Saved for later" : "This workout is already saved"); };
+
+  return <section className="px-4 py-10 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-white/60 transition hover:text-[#ccff00]"><ArrowLeft size={17} /> Back to library</Link><div className="grid gap-8 lg:grid-cols-[1.02fr_.98fr] lg:gap-14"><div className="relative overflow-hidden border border-white/10 bg-[#191c19]"><img src={workout.image} alt={workout.name} className="aspect-square size-full object-cover" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#111311] p-6 pt-24"><div className="flex items-center gap-2 text-xs font-black text-[#ccff00]"><Dumbbell size={16} /> FITLOG LIFT FILE</div></div></div><div><div className="flex flex-wrap gap-2">{workout.muscleGroups.map((group) => <span key={group} className="rounded-full border border-[#ccff00]/35 px-3 py-1 text-xs font-black uppercase text-[#ccff00]">{group}</span>)}</div><h1 className="display-font mt-5 text-5xl uppercase leading-[.9] sm:text-6xl">{workout.name}</h1><p className="mt-6 max-w-xl text-base leading-7 text-white/65">{workout.description}</p><div className="mt-8 border border-white/10 bg-[#191c19]"><div className="border-b border-white/10 px-5 py-4 text-xs font-black tracking-[.16em] text-[#ccff00]">KEY SPECS</div><dl className="grid grid-cols-2">{fields(workout).map(([label, value]) => <div key={String(label)} className="border-b border-white/10 px-5 py-3 last:border-b-0 odd:border-r odd:border-white/10"><dt className="text-[10px] font-black uppercase tracking-wider text-white/45">{label}</dt><dd className="mt-1 text-sm font-bold">{value}</dd></div>)}</dl></div><div className="mt-8"><h2 className="display-font flex items-center gap-2 text-2xl uppercase"><ListChecks size={21} className="text-[#ccff00]" /> Instructions</h2><ol className="mt-4 space-y-3">{workout.instructions.map((step, index) => <li key={step} className="flex gap-4 text-sm leading-6 text-white/65"><span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#ccff00] text-xs font-black text-[#111311]">{index + 1}</span>{step}</li>)}</ol></div><div className="mt-8 grid gap-3 sm:grid-cols-2"><button type="button" onClick={handlePlan} disabled={planFull} className="inline-flex items-center justify-center gap-2 bg-[#ccff00] px-5 py-4 font-black text-[#111311] transition hover:bg-white disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/50">{isPlanned ? <Check size={18} /> : <Plus size={18} />}{isPlanned ? "In today’s plan" : planFull ? "Plan is full" : "Add to today’s plan"}</button><button type="button" onClick={handleSave} className="inline-flex items-center justify-center gap-2 border border-white/30 px-5 py-4 font-black transition hover:border-[#ccff00] hover:text-[#ccff00]"><Bookmark size={18} fill={isSaved ? "currentColor" : "none"} />{isSaved ? "Saved for later" : "Save for later"}</button></div><div className="mt-6 flex gap-5 text-xs font-bold text-white/50"><span className="flex items-center gap-1"><Clock3 size={14} className="text-[#ccff00]" />{workout.duration} min</span><span className="flex items-center gap-1"><Flame size={14} className="text-[#ccff00]" />{workout.caloriesBurned} kcal</span><span className="flex items-center gap-1"><Star size={14} fill="currentColor" className="text-[#ccff00]" />{workout.rating}</span></div></div></div></div></section>;
+}

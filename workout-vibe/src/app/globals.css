@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --color-ink: #111311;
+  --color-panel: #191c19;
+  --color-panel-soft: #222621;
+  --color-acid: #ccff00;
+  --color-muted: #9da69b;
+  --font-display: "Arial Narrow", Impact, sans-serif;
+}
+
+:root {
+  background: var(--color-ink);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--color-ink);
+  color: #f5f7f2;
+}
+
+::selection { background: var(--color-acid); color: var(--color-ink); }
+
+.display-font {
+  font-family: var(--font-display);
+  letter-spacing: .025em;
+}
+
+.noise-grid {
+  background-image: linear-gradient(rgba(204, 255, 0, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(204, 255, 0, .05) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.toast-theme { font-family: Arial, sans-serif; }
+
