@@ -170,4 +170,5 @@ Deploy your project on Vercel, Netlify, Cloudflare Pages, or anywhere else befor
 Fill in both links before submitting:
 
 - Live Link:
-- GitHub Repository Link:
+- GitHub Repository Link: https://github.com/TohaHossain/B14-A6-Fit-Log.git
+- Vercel Repository Link: https://b14-a6-fit-log-toha7.vercel.app/
